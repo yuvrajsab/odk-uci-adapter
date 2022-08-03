@@ -33,8 +33,6 @@ An adapter service for parsing and sending odk form responses as SMS via UCI.
 $ yarn install
 ```
 
-## Running the app
-
 # Apply migrations and generate client
 
 ```bash
@@ -43,6 +41,8 @@ hasura metadata apply --envfile .env --project hasura
 # generate prisma client
 npx prisma generate
 ```
+
+## Running the app
 
 ```bash
 # development
