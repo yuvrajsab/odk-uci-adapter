@@ -1,0 +1,4 @@
+version: 2
+endpoint: http://localhost:15003
+admin_secret: ${admin_secret}
+metadata_directory: metadata

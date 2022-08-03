@@ -1,0 +1,14 @@
+- table:
+    schema: public
+    name: submission
+  event_triggers:
+    - name: insert_submission
+      definition:
+        enable_manual: false
+        insert:
+          columns: '*'
+      retry_conf:
+        num_retries: 3
+        interval_sec: 10
+        timeout_sec: 60
+      webhook: http://odk-uci.ngrok.samagra.io/submit

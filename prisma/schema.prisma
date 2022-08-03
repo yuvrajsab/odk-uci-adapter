@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model submission {
+  id         Int       @id(map: "submissions_pkey") @default(autoincrement())
+  xml_string String    @db.Xml
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @db.Timestamptz(6)
+  type       String
+  status     String
+}
