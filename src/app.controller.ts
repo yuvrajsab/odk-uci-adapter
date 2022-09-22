@@ -79,5 +79,17 @@ export class AppController {
     
   }
 
+  @Get('/health')
+  getHealth(): any {
+    return {
+      status: 'healthy',
+    };
+  }
+
+  @Get()
+  getMessage(): any {
+    return "ODK-UCI Queue Service is running"
+  }
+
 }
 

@@ -15,9 +15,11 @@ RUN yarn install
 
 COPY . .
 
+RUN npx prisma generate
+
 RUN yarn run build
 
-FROM node:12
+FROM node:16
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
