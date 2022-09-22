@@ -1,1 +1,2 @@
-export const holidayTemplate = `Kindly note your OTP @123@. Submission of the OTP will be taken as authentication that you have personally verified and overseen the distribution of smartphone to the mentioned student ID of your school. Thank you! - Samagra Shiksha, Himachal Pradesh`;
+export const getStudentFromUdiseAndClass = (udise: number, grade_number: number[]) : string => `query MyQuery { data: student(where: {school: {udise: {_eq: ${udise}}}, grade_number: {_in: [${grade_number}]}}) {name phone}}`
+export const getStudentFromId = (ids: number[]) : string => `query MyQuery {data: student(where: {id: {_in: [${ids}]}}) {name phone}}`

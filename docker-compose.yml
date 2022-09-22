@@ -47,6 +47,13 @@ services:
       - redisinsight:/db 
     ports:
       - 8088:8001
+  
+  web:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - '3000:3000'
 
 volumes:
   pgdata:

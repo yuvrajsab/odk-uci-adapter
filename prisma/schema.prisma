@@ -8,10 +8,23 @@ datasource db {
 }
 
 model submission {
-  id         Int       @id(map: "submissions_pkey") @default(autoincrement())
-  xml_string String    @db.Xml
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @db.Timestamptz(6)
-  type       String
-  status     String
+  id          Int       @id(map: "submissions_pkey") @default(autoincrement())
+  xml_string  String    @db.Xml
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @db.Timestamptz(6)
+  type        String
+  status      String    @default("QUEUED")
+  remarks     String?
+  instance_id String    @db.Uuid
+  user_id     String
+}
+
+model sms_track {
+  id          Int      @id @default(autoincrement())
+  type        String
+  user_id     String
+  instance_id String   @db.Uuid
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  status      String
+  messageId   String
 }
