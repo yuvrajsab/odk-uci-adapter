@@ -35,10 +35,10 @@ constructor(
         const templateId = this.configService.get<string>('EXAM_ANNOUNCEMENT_TEMPLATE_ID');
         let resp = await this.appService.registerSms(element.phone, templateId, payload);
         console.log({resp: resp});
-        // if (resp.status === 200) {
-        //   this.holidayservice.updateSubmissionStatus(job.data.data.id, "SENT")
-        // }
-        // messageId = resp.result.messageId;
+        if (resp.status === 200) {
+          this.appService.updateSubmissionStatus(job.data.data.id, "SENT")
+          this.appService.insertSmsTrackEntry({type: job.data.data.type, user_id: job.data.data.user_id, instance_id: job.data.data.instance_id, created_at: job.data.data.created_at, status: resp.message || resp.error, messageId: resp.result.messageId})
+        }
       });
     }
     return "OK";

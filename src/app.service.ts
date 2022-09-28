@@ -22,6 +22,7 @@ async sendGqlRequest(query: string): Promise<any> {
 }
 
 async registerSms(phone: string, templateId: string, payload: string): Promise<any> {
+  console.log("HERE", phone, templateId, payload);
   const data = {
     "adapterId": this.adapterId,
     "to": {
@@ -35,7 +36,7 @@ async registerSms(phone: string, templateId: string, payload: string): Promise<a
         "text": payload
     }
 }
-    let resp = await lastValueFrom(this.httpService.post(`${this.configService.get<string>('UCI_URL')}/message/send`, data).pipe(map((response: any) =>{ return response.data; }), catchError(e => { console.log({e}); throw new HttpException(e.response.data, e.response.status);})));
+    let resp = await lastValueFrom(this.httpService.post(`${this.configService.get<string>('UCI_URL')}/message/send`, data).pipe(map((response: any) =>{ return response.data; }), catchError(e => { e.response.data; throw new HttpException(e.response.data, e.response.status);})));
     return resp;
 }
 
