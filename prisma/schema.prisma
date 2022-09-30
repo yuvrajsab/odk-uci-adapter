@@ -22,9 +22,10 @@ model submission {
 model sms_track {
   id          Int      @id @default(autoincrement())
   type        String
+  phone_no    String
   user_id     String
   instance_id String   @db.Uuid
   created_at  DateTime @default(now()) @db.Timestamptz(6)
   status      String
-  messageId   String
+  message_id   String
 }

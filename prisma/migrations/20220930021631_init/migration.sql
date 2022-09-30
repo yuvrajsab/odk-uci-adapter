@@ -17,11 +17,12 @@ CREATE TABLE "submission" (
 CREATE TABLE "sms_track" (
     "id" SERIAL NOT NULL,
     "type" TEXT NOT NULL,
+    "phone_no" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "instance_id" UUID NOT NULL,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" TEXT NOT NULL,
-    "messageId" TEXT NOT NULL,
+    "message_id" TEXT NOT NULL,
 
     CONSTRAINT "sms_track_pkey" PRIMARY KEY ("id")
 );

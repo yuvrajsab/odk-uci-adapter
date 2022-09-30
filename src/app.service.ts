@@ -22,7 +22,6 @@ async sendGqlRequest(query: string): Promise<any> {
 }
 
 async registerSms(phone: string, templateId: string, payload: string): Promise<any> {
-  console.log("HERE", phone, templateId, payload);
   const data = {
     "adapterId": this.adapterId,
     "to": {
@@ -50,10 +49,11 @@ async updateSubmissionStatus(id, status, remarks=""): Promise<any> {
 async insertSmsTrackEntry(data: {
   type: string
   user_id: string
+  phone_no: string
   instance_id: string
   created_at?: Date | string
   status: string
-  messageId: string
+  message_id: string
 }): Promise<any> {
   return this.prisma.sms_track.create({
     data: data

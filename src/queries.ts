@@ -1,2 +1,2 @@
-export const getStudentFromUdiseAndClass = (udise: number, grade_number: number[]) : string => `query MyQuery { data: student(where: {school: {udise: {_eq: ${udise}}}, grade_number: {_in: [${grade_number}]}}) {name phone}}`
-export const getStudentFromId = (ids: number[]) : string => `query MyQuery {data: student(where: {id: {_in: [${ids}]}}) {name phone}}`
+export const getStudentFromUdiseAndClass = (udise: number, grade_number: number[]) : string => `query MyQuery { data: student(where: {school: {udise: {_eq: ${udise}}}, grade_number: {_in: [${grade_number}]}, is_enabled: {_eq: true}}) {name phone}}`
+export const getStudentFromId = (ids: number[]) : string => `query MyQuery {data: student(where: {id: {_in: [${ids}]}, is_enabled: {_eq: true}}) {name phone}}`
