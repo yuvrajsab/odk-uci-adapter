@@ -37,13 +37,14 @@ services:
     image: redis:alpine
     ports:
       - 6379:6379
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "--appendonly", "yes", "--replica-read-only", "no"]
     hostname: redis
     networks:
       - my-network
     volumes:
       - ./redis-data:/data
       - ./redis.conf:/usr/local/etc/redis/redis.conf
+    restart: on-failure
 
   redis-ui:
     container_name: redis-ui
@@ -64,6 +65,7 @@ services:
       - .env
     ports:
       - '3000:${PORT}'
+    restart: always
 
 volumes:
   pgdata:
