@@ -19,36 +19,51 @@ import { PrismaService } from './prisma.service';
       envFilePath: ['.env.local', '.env'],
     }),
     BullModule.forRootAsync({
-    imports: [ConfigModule],
-    useFactory: async (configService: ConfigService) => ({
-      redis: {
-        host: configService.get('QUEUE_HOST'),
-        port: configService.get('QUEUE_PORT'),
-      },
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          host: configService.get('QUEUE_HOST'),
+          port: configService.get('QUEUE_PORT'),
+        },
+        limiter: {
+          max: 2, // we'll process max X request per second; because CDA has issues
+          duration: 1000,
+        },
+      }),
+      inject: [ConfigService],
     }),
-    inject: [ConfigService],
-  }),
-  BullModule.registerQueue({
-    name: 'holiday',
-  },
-  {
-    name: 'meeting',
-  },
-  {
-    name: 'examAnnouncement',
-  },
-  {
-    name: 'examResultAnnouncement',
-  },
-  {
-    name: 'announcement',
-  },
-  {
-    name: 'homework',
-  }),
-  HttpModule,
-],
+    BullModule.registerQueue(
+      {
+        name: 'holiday',
+      },
+      {
+        name: 'meeting',
+      },
+      {
+        name: 'examAnnouncement',
+      },
+      {
+        name: 'examResultAnnouncement',
+      },
+      {
+        name: 'announcement',
+      },
+      {
+        name: 'homework',
+      },
+    ),
+    HttpModule,
+  ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, HolidayProcessor, MeetingProcessor, ExamAnnouncementProcessor, ExamResultAnnouncementProcessor, AnnouncementProcessor, HomeworkProcessor],
+  providers: [
+    AppService,
+    PrismaService,
+    HolidayProcessor,
+    MeetingProcessor,
+    ExamAnnouncementProcessor,
+    ExamResultAnnouncementProcessor,
+    AnnouncementProcessor,
+    HomeworkProcessor,
+  ],
 })
 export class AppModule {}
