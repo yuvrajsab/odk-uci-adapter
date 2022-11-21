@@ -1,16 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { 
+import {
   FastifyAdapter,
-  NestFastifyApplication
+  NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter()
-    );
+    new FastifyAdapter(),
+  );
   const config = new DocumentBuilder()
     .setTitle('ODK UCI Adapter')
     .setDescription('Adapter for Sending Message from ODK to UCI')
@@ -21,7 +21,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   app.enableCors();
   const port = process.env.PORT || 3000;
-  await app.listen(port,"0.0.0.0");
+  await app.listen(port, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

@@ -1,49 +1,82 @@
 import { Process, Processor } from '@nestjs/bull';
-import { xml2json } from "xml-js";
+import { xml2json } from 'xml-js';
 import { Job } from 'bull';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
 import { meetingTemplate } from './sms.templates';
 import { getStudentFromUdiseAndClass } from './queries';
+import { Logger } from '@nestjs/common';
 
 @Processor('meeting')
 export class MeetingProcessor {
-//   private readonly logger = new Logger(HolidayProcessor.name);
-constructor(
-  private configService: ConfigService,
-  private readonly appService: AppService){}
+  private readonly logger = new Logger(MeetingProcessor.name);
+  constructor(
+    private configService: ConfigService,
+    private readonly appService: AppService,
+  ) {}
 
   @Process('meetingSubmission')
   async handleSubmit(job: Job) {
+    this.logger.debug(`Processing id: ${job.data.data.id}...`);
     try {
-      const respObj = JSON.parse(xml2json(job.data.data.xml_string, {compact: true}));
+      const respObj = JSON.parse(
+        xml2json(job.data.data.xml_string, { compact: true }),
+      );
+      this.logger.debug(
+        `id: ${job.data.data.id}: xml2json: ${JSON.stringify(respObj)}`,
+      );
       const udise = respObj.data.Meetings.udise._text;
       const classList = respObj.data.Meetings.class._text;
       const meeting_date = respObj.data.formatted_meeting_date._text;
       const meeting = respObj.data.Meetings.meeting._text;
       console.log(udise, classList, meeting_date, meeting);
       const query = getStudentFromUdiseAndClass(udise, classList);
-      const resp = await this.appService.sendGqlRequest(query)
-      if( resp['errors'] !== undefined){
-        console.log({response: resp['errors'][0]['message']});
-        this.appService.updateSubmissionStatus(job.data.data.id, "FAILED", resp['errors'][0]['message']);
-      }else if(resp['data']['data'] !== undefined){
-        this.appService.updateSubmissionStatus(job.data.data.id, "PROCESSED")
-        resp.data.data.forEach(async element => {
+      const resp = await this.appService.sendGqlRequest(query);
+      if (resp['errors'] !== undefined) {
+        console.log({ response: resp['errors'][0]['message'] });
+        await this.appService.updateSubmissionStatus(
+          job.data.data.id,
+          'FAILED',
+          resp['errors'][0]['message'],
+        );
+      } else if (resp['data']['data'] !== undefined) {
+        await this.appService.updateSubmissionStatus(
+          job.data.data.id,
+          'PROCESSED',
+        );
+        for (const element of resp.data.data) {
           const payload = meetingTemplate(meeting_date, meeting);
-          const templateId = this.configService.get<string>('MEETING_TEMPLATE_ID');
-          let resp = await this.appService.registerSms(element.phone, templateId, payload);
+          const templateId = this.configService.get<string>(
+            'MEETING_TEMPLATE_ID',
+          );
+          const resp = await this.appService.registerSms(
+            element.phone,
+            templateId,
+            payload,
+          );
           if (resp.status === 200) {
-            this.appService.insertSmsTrackEntry({type: job.data.data.type, user_id: job.data.data.user_id, phone_no: String(element.phone), instance_id: job.data.data.instance_id, created_at: job.data.data.created_at, status: resp.message || resp.error, message_id: resp.result.messageId})
+            await this.appService.insertSmsTrackEntry({
+              type: job.data.data.type,
+              user_id: job.data.data.user_id,
+              phone_no: String(element.phone),
+              instance_id: job.data.data.instance_id,
+              created_at: job.data.data.created_at,
+              status: resp.message || resp.error,
+              message_id: resp.result.messageId,
+            });
           }
-        });
-        this.appService.updateSubmissionStatus(job.data.data.id, "DONE")
+        }
+        await this.appService.updateSubmissionStatus(job.data.data.id, 'DONE');
       }
     } catch (error) {
-      console.log({error});
-      this.appService.updateSubmissionStatus(job.data.data.id, "FAILED", error.message)
+      this.logger.error(`id: ${job.data.data.id}: ERROR:`, error);
+      await this.appService.updateSubmissionStatus(
+        job.data.data.id,
+        'FAILED',
+        error.message,
+      );
     }
-    
-    return "OK";
+
+    return 'OK';
   }
 }
