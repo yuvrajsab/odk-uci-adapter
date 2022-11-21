@@ -85,7 +85,9 @@ export class AppService {
           }),
           catchError((e) => {
             this.logger.error(
-              `Processing registerSms() FAILURE: ${e.toString()}`,
+              `Processing registerSms() FAILURE: ${JSON.stringify(
+                e.response.data,
+              )}`,
             );
             if (this.UCI_500_ALLOWED && e.response.status == 500) {
               // simply just resolve the promise as success even in case of 500s
