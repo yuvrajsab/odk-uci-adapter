@@ -7,6 +7,7 @@ import { PrismaService } from './prisma.service';
 @Injectable()
 export class AppService {
   adapterId;
+  private UCI_500_ALLOWED: boolean;
   private readonly logger = new Logger(AppService.name);
 
   constructor(
@@ -15,6 +16,8 @@ export class AppService {
     private configService: ConfigService,
   ) {
     this.adapterId = this.configService.get<string>('UCI_ADAPTER_ID');
+    this.UCI_500_ALLOWED =
+      this.configService.get<string>('UCI_500_ALLOWED', 'false') == 'true';
   }
 
   async sendGqlRequest(query: string): Promise<any> {
@@ -74,7 +77,7 @@ export class AppService {
         .pipe(
           map((response: any) => {
             this.logger.debug(
-              `Processing registerSms() SUCCESS: ${JSON.stringify(
+              `Processed registerSms() SUCCESS: ${JSON.stringify(
                 response.data,
               )}`,
             );
@@ -84,8 +87,13 @@ export class AppService {
             this.logger.error(
               `Processing registerSms() FAILURE: ${e.toString()}`,
             );
-            e.response.data;
-            throw new HttpException(e.response.error, e.response.status);
+            if (this.UCI_500_ALLOWED && e.response.status == 500) {
+              // simply just resolve the promise as success even in case of 500s
+              return new Promise((resolve) => {
+                resolve(e.response.data);
+              });
+            }
+            throw new HttpException(e.response.error, e.response.status); // or else throw exception
           }),
         ),
     );

@@ -54,17 +54,15 @@ export class MeetingProcessor {
             templateId,
             payload,
           );
-          if (resp.status === 200) {
-            await this.appService.insertSmsTrackEntry({
-              type: job.data.data.type,
-              user_id: job.data.data.user_id,
-              phone_no: String(element.phone),
-              instance_id: job.data.data.instance_id,
-              created_at: job.data.data.created_at,
-              status: resp.message || resp.error,
-              message_id: resp.result.messageId,
-            });
-          }
+          await this.appService.insertSmsTrackEntry({
+            type: job.data.data.type,
+            user_id: job.data.data.user_id,
+            phone_no: String(element.phone),
+            instance_id: job.data.data.instance_id,
+            created_at: job.data.data.created_at,
+            status: resp.message || resp.error,
+            message_id: resp?.result?.messageId || '',
+          });
         }
         await this.appService.updateSubmissionStatus(job.data.data.id, 'DONE');
       }
