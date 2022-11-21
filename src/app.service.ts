@@ -32,7 +32,7 @@ export class AppService {
         )
         .pipe(
           map((response: any) => {
-            this.logger.debug(`GQL response: ${JSON.stringify(response)}`);
+            this.logger.debug(`GQL response:`, response);
             return response.data;
           }),
           catchError(async (e) => {
