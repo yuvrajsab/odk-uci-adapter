@@ -44,4 +44,4 @@
         num_retries: 3
         interval_sec: 10
         timeout_sec: 60
-      webhook: http://web:3000/submit
+      webhook_from_env: WEBHOOK_URL
