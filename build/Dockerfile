@@ -31,5 +31,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/hasura ./hasura
 
+RUN curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
+
 EXPOSE 3000
 CMD [ "npm", "run", "start:prod" ]
