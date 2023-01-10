@@ -1,10 +1,26 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { Queue } from 'bull';
+import {
+  HealthCheck,
+  HealthCheckService,
+  HttpHealthIndicator,
+} from '@nestjs/terminus';
+import { ConfigService } from '@nestjs/config';
+import { PrismaHealthIndicator } from '../prisma/prisma.health';
+import { RedisHealthIndicator } from '@liaoliaots/nestjs-redis-health';
+import Redis from 'ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
 @Controller()
 export class AppController {
   constructor(
+    private healthCheckService: HealthCheckService,
+    private http: HttpHealthIndicator,
+    private prismaIndicator: PrismaHealthIndicator,
+    private redisIndicator: RedisHealthIndicator,
+    @InjectRedis() private readonly redis: Redis,
+    private configService: ConfigService,
     @InjectQueue('holiday') private readonly holidaySubmissionQueue: Queue,
     @InjectQueue('meeting') private readonly meetingSubmissionQueue: Queue,
     @InjectQueue('examAnnouncement')
@@ -84,10 +100,32 @@ export class AppController {
   }
 
   @Get('/health')
-  getHealth(): any {
-    return {
-      status: 'healthy',
-    };
+  @HealthCheck()
+  async checkHealth() {
+    return this.healthCheckService.check([
+      async () =>
+        this.http.pingCheck(
+          'Hasura (Samarth)',
+          this.configService.get('GQL_HOST'),
+        ),
+      async () =>
+        this.http.pingCheck(
+          'Hasura (Self)',
+          this.configService.get('HASURA_HOST'),
+        ),
+      async () =>
+        this.http.pingCheck(
+          'Basic Check',
+          `http://localhost:${this.configService.get('PORT')}`,
+        ),
+      async () =>
+        this.redisIndicator.checkHealth('Redis', {
+          type: 'redis',
+          client: this.redis,
+          timeout: 500,
+        }),
+      async () => this.prismaIndicator.isHealthy('Db'),
+    ]);
   }
 
   @Get()
