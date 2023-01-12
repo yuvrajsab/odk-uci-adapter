@@ -6,19 +6,12 @@ WORKDIR /app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package.json ./
 COPY yarn.lock ./
-COPY prisma ./prisma/
-COPY hasura ./hasura/
 
 # Install app dependencies
 RUN yarn install
-# Required if not done in postinstall
-# RUN npx prisma generate
-
 COPY . .
-
-RUN npx prisma generate
-
 RUN yarn run build
+RUN npx prisma generate
 
 FROM node:16
 
@@ -32,4 +25,4 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/hasura ./hasura
 
 EXPOSE 3000
-CMD [ "npm", "run", "start:prod" ]
+CMD [ "yarn", "run", "start:prod" ]
