@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   db:
@@ -37,8 +37,8 @@ services:
 
   redis:
     image: redis:alpine
-    ports:
-      - 127.0.0.1:${QUEUE_PORT}:6379
+    # ports:
+    #   - 127.0.0.1:${QUEUE_PORT}:6379
     command: ["redis-server", "--appendonly", "yes", "--replica-read-only", "no"]
     hostname: ${QUEUE_HOST}
     networks:
@@ -49,7 +49,7 @@ services:
     restart: on-failure
 
   redis-ui:
-    container_name: redis-ui
+    # container_name: redis-ui
     image: redislabs/redisinsight:latest
     restart: always
     networks:
@@ -57,16 +57,21 @@ services:
     volumes:
       - redisinsight:/db 
     ports:
-      - 8088:8001
+      - 8089:8001
   
   web:
-    build: .
+    build:
+      context: .
     networks:
       - my-network
     env_file:
       - .env
+    depends_on:
+      - redis
+      - gql
+      - db
     ports:
-      - '3000:${PORT}'
+      - '${PORT}:3000'
     restart: always
 
 volumes:

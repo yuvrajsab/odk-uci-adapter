@@ -116,7 +116,7 @@ export class AppController {
       async () =>
         this.http.pingCheck(
           'Basic Check',
-          `http://localhost:${this.configService.get('PORT')}`,
+          `http://localhost:3000`,
         ),
       async () =>
         this.redisIndicator.checkHealth('Redis', {
