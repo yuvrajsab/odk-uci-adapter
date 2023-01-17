@@ -111,12 +111,12 @@ export class AppController {
       async () =>
         this.http.pingCheck(
           'Hasura (Self)',
-          this.configService.get('HASURA_HOST'),
+          this.configService.get('HASURA_URL'),
         ),
       async () =>
         this.http.pingCheck(
           'Basic Check',
-          `http://localhost:3000`,
+          this.configService.get('APP_URL'),
         ),
       async () =>
         this.redisIndicator.checkHealth('Redis', {

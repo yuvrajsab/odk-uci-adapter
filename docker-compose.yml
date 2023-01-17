@@ -2,10 +2,7 @@ version: '3.7'
 
 services:
   db:
-    container_name: db
     image: postgres:12
-    env_file:
-      - .env
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
@@ -18,10 +15,9 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   gql:
-    hostname: ${HASURA_HOST}
     image: hasura/graphql-engine:v2.7.0
     ports:
-      - 15003:8080
+      - ${HASURA_PORT}:8080
     env_file:
       - .env
     environment:
@@ -37,10 +33,9 @@ services:
 
   redis:
     image: redis:alpine
-    # ports:
-    #   - 127.0.0.1:${QUEUE_PORT}:6379
+     ports:
+       - 127.0.0.1:${QUEUE_PORT}:6379
     command: ["redis-server", "--appendonly", "yes", "--replica-read-only", "no"]
-    hostname: ${QUEUE_HOST}
     networks:
       - my-network
     volumes:
@@ -57,7 +52,7 @@ services:
     volumes:
       - redisinsight:/db 
     ports:
-      - 8089:8001
+      - 8088:8001
   
   web:
     build:
