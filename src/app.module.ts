@@ -15,6 +15,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { PrismaHealthIndicator } from '../prisma/prisma.health';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { RedisHealthModule } from '@liaoliaots/nestjs-redis-health';
+import { SLRProcessor } from './slr.processor';
 
 @Module({
   imports: [
@@ -55,6 +56,9 @@ import { RedisHealthModule } from '@liaoliaots/nestjs-redis-health';
       {
         name: 'homework',
       },
+      {
+        name: 'slr',
+      },
     ),
     HttpModule,
     TerminusModule,
@@ -85,6 +89,7 @@ import { RedisHealthModule } from '@liaoliaots/nestjs-redis-health';
     AnnouncementProcessor,
     HomeworkProcessor,
     PrismaHealthIndicator,
+    SLRProcessor,
   ],
 })
 export class AppModule {}
