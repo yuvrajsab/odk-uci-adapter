@@ -53,7 +53,25 @@ services:
       - redisinsight:/db 
     ports:
       - 8088:8001
-  
+
+  cdac:
+    image: samagragovernance/cdac-service:latest
+    restart: always
+    networks:
+      - my-network
+    environment:
+      USERNAME: "${USERNAME}"
+      SENDER_ID: "${SENDER_ID}"
+      PASSWORD: "${PASSWORD}"
+      SECURE_KEY: "${SECURE_KEY}"
+    ports:
+      - "${CDAC_PORT}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://cdac:8080/api"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
   web:
     build:
       context: .
