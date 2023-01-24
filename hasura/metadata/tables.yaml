@@ -1,6 +1,39 @@
 - table:
     schema: public
+    name: sms_track
+- table:
+    schema: public
     name: submission
+  insert_permissions:
+    - role: school
+      permission:
+        check: {}
+        columns:
+          - id
+          - remarks
+          - status
+          - type
+          - user_id
+          - created_at
+          - updated_at
+          - instance_id
+          - xml_string
+        backend_only: false
+  select_permissions:
+    - role: school
+      permission:
+        columns:
+          - id
+          - remarks
+          - status
+          - type
+          - user_id
+          - created_at
+          - updated_at
+          - instance_id
+          - xml_string
+        filter: {}
+        allow_aggregations: true
   event_triggers:
     - name: insert_submission
       definition:
@@ -11,4 +44,4 @@
         num_retries: 3
         interval_sec: 10
         timeout_sec: 60
-      webhook: http://odk-uci.ngrok.samagra.io/submit
+      webhook_from_env: WEBHOOK_URL

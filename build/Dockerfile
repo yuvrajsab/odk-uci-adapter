@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package.json ./
 COPY yarn.lock ./
 COPY prisma ./prisma/
+COPY hasura ./hasura/
 
 # Install app dependencies
 RUN yarn install
@@ -21,10 +22,16 @@ RUN yarn run build
 
 FROM node:16
 
+WORKDIR /app
+
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/yarn.lock ./
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/hasura ./hasura
+
+RUN curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
 
 EXPOSE 3000
 CMD [ "npm", "run", "start:prod" ]

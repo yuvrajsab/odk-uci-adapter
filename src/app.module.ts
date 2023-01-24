@@ -11,6 +11,10 @@ import { HolidayProcessor } from './holiday.processor';
 import { HomeworkProcessor } from './homework.processor';
 import { MeetingProcessor } from './meeting.processor';
 import { PrismaService } from './prisma.service';
+import { TerminusModule } from '@nestjs/terminus';
+import { PrismaHealthIndicator } from '../prisma/prisma.health';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisHealthModule } from '@liaoliaots/nestjs-redis-health';
 
 @Module({
   imports: [
@@ -53,6 +57,22 @@ import { PrismaService } from './prisma.service';
       },
     ),
     HttpModule,
+    TerminusModule,
+    RedisHealthModule,
+    RedisModule.forRootAsync({
+      useFactory: (config: ConfigService) => {
+        return {
+          readyLog: true,
+          config: {
+            name: 'db',
+            url: `redis://${config.get('QUEUE_HOST')}:${config.get(
+              'QUEUE_PORT',
+            )}`,
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -64,6 +84,7 @@ import { PrismaService } from './prisma.service';
     ExamResultAnnouncementProcessor,
     AnnouncementProcessor,
     HomeworkProcessor,
+    PrismaHealthIndicator,
   ],
 })
 export class AppModule {}
