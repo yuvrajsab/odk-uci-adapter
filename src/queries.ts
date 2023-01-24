@@ -8,14 +8,24 @@ export const getStudentFromId = (ids: number[]): string =>
   `query MyQuery {data: student(where: {id: {_in: [${ids}]}, is_enabled: {_eq: true}}) {name phone}}`;
 
 export const getStudentForSLC = (
+  student_id?: number,
   grade_number?: number[],
   sessions?: string[],
   districts?: string[],
 ): string => {
+  if (student_id) {
+    return `query MyQuery {
+      data: student(where: {id: {_eq: ${student_id}}}) {
+        id
+        name
+        phone
+      }
+    }`;
+  }
+
   let query = `query MyQuery {
     data: student(
       where: {
-        id: {_eq: 919204}
         is_enabled: {_eq: true}
         %grade_number_query
         school: {

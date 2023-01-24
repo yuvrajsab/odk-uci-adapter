@@ -21,6 +21,7 @@ export class SLRProcessor {
     try {
       const respObj: {
         data: {
+          student?: { _text?: number };
           class: { _text?: string };
           session: { _text?: string };
           district: { _text?: string };
@@ -30,15 +31,21 @@ export class SLRProcessor {
         `id: ${job.data.data.id}: xml2json: ${JSON.stringify(respObj)}`,
       );
 
+      const studentId: number | undefined = respObj.data.student?._text;
       const classList: number[] = <number[]>(
         (<unknown>respObj.data.class._text?.split(' '))
       );
       const sessionList: string[] = respObj.data.session._text?.split(' ');
       const districtList: string[] = respObj.data.district._text?.split(' ');
 
-      const query = getStudentForSLC(classList, sessionList, districtList);
+      const query = getStudentForSLC(
+        studentId,
+        classList,
+        sessionList,
+        districtList,
+      );
       const resp = await this.appService.sendGqlRequest(query);
-      console.log('resp', resp);
+
       if (resp['errors'] !== undefined) {
         console.log({ response: resp['errors'][0]['message'] });
         await this.appService.updateSubmissionStatus(
