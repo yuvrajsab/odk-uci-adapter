@@ -44,7 +44,7 @@ export class CdacService implements SmsAdapterInterface {
             status: 200,
             error: null,
             message: response.data.toString(),
-            path: '/api/send_single_sms',
+            path: '/api/send_single_unicode_sms',
             result: {
               messageId: messageId,
             },
@@ -60,7 +60,7 @@ export class CdacService implements SmsAdapterInterface {
               e.response.data,
             )}`,
           );
-          throw new HttpException(e.response.error, e.response.status); // or else throw exception
+          throw new HttpException(e.response.error, e?.response?.status || 500); // or else throw exception
         }),
       ),
     );

@@ -84,6 +84,7 @@ export class AppService {
     this.logger.debug(
       `Processing insertSmsTrackEntry() callback: ${JSON.stringify(data)}`,
     );
+    data.status = data.status || 'UNKNOWN'; // marking the status as unknown in case nothing received
     return this.prisma.sms_track.create({
       data: data,
     });
