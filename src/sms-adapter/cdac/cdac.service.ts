@@ -32,13 +32,18 @@ export class CdacService implements SmsAdapterInterface {
     const url = `${
       this.cdacServiceUrl
     }/api/send_single_unicode_sms?${params.toString()}`;
-    console.log(url);
     return await lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: any) => {
           let messageId = response.data.toString();
-          messageId = messageId.trim('402,MsgID = ');
-          messageId = messageId.trim('hpgovt-hpssa');
+          const statusCode = messageId.substring(0, 3) || '0';
+          if (statusCode != '402') {
+            throw new HttpException(
+              { error: `CDAC Error: ${messageId}`, data: {} },
+              statusCode,
+            ); // or else throw exception
+          }
+          messageId = messageId.slice(12, -1);
           const resp = {
             timestamp: new Date(),
             status: 200,
@@ -55,6 +60,7 @@ export class CdacService implements SmsAdapterInterface {
           return resp;
         }),
         catchError((e) => {
+          console.log(e.response);
           this.logger.error(
             `Processing registerSms() FAILURE: ${JSON.stringify(
               e.response.data,
