@@ -33,7 +33,7 @@ services:
 
   redis:
     image: redis:alpine
-#     ports:
+#    ports:
 #      - 127.0.0.1:${QUEUE_PORT}:6379
     command: ["redis-server", "--appendonly", "yes", "--replica-read-only", "no"]
     networks:
@@ -73,7 +73,9 @@ services:
 #      retries: 20
 
   web:
-    image: samagragovernance/odk-uci-adapter:latest
+    build:
+      dockerfile: Dockerfile.local
+      context: .
     networks:
       - my-network
     env_file:
@@ -85,6 +87,8 @@ services:
     ports:
       - '${PORT}:3000'
     restart: always
+    volumes:
+    - ./src:/app/src  # using local volume
 
 volumes:
   pgdata:
