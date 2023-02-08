@@ -30,6 +30,7 @@ export class AppController {
     @InjectQueue('announcement')
     private readonly announcementSubmissionQueue: Queue,
     @InjectQueue('homework') private readonly homeworkSubmissionQueue: Queue,
+    @InjectQueue('slr') private readonly slrSubmissionQueue: Queue,
   ) {}
 
   @Post('submit')
@@ -96,6 +97,15 @@ export class AppController {
       } catch (e) {
         return `Submission failed for Announcement Form: ${e.message}`;
       }
+    } else if (sub.event.data.new.type.toUpperCase() === 'SLR') {
+      try {
+        await this.slrSubmissionQueue.add('slrSubmission', {
+          data: sub.event.data.new,
+        });
+        return 'Successfully Submitted SLR Request';
+      } catch (e) {
+        return `Submission failed for SLR Request: ${e.message}`;
+      }
     }
   }
 
@@ -114,10 +124,7 @@ export class AppController {
           this.configService.get('HASURA_URL'),
         ),
       async () =>
-        this.http.pingCheck(
-          'Basic Check',
-          this.configService.get('APP_URL'),
-        ),
+        this.http.pingCheck('Basic Check', this.configService.get('APP_URL')),
       async () =>
         this.redisIndicator.checkHealth('Redis', {
           type: 'redis',

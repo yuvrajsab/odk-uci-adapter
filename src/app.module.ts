@@ -15,6 +15,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { PrismaHealthIndicator } from '../prisma/prisma.health';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { RedisHealthModule } from '@liaoliaots/nestjs-redis-health';
+import { SLRProcessor } from './slr.processor';
 import { SmsAdapterType, SmsAdapterTypeToken } from './sms.templates';
 import { UciService } from './sms-adapter/uci/uci.service';
 import { CdacService } from './sms-adapter/cdac/cdac.service';
@@ -58,6 +59,9 @@ import { CdacService } from './sms-adapter/cdac/cdac.service';
       {
         name: 'homework',
       },
+      {
+        name: 'slr',
+      },
     ),
     HttpModule,
     TerminusModule,
@@ -88,6 +92,7 @@ import { CdacService } from './sms-adapter/cdac/cdac.service';
     AnnouncementProcessor,
     HomeworkProcessor,
     PrismaHealthIndicator,
+    SLRProcessor,
     {
       provide: SmsAdapterTypeToken,
       useClass:

@@ -86,6 +86,9 @@ describe('AppController', () => {
           {
             name: 'homework',
           },
+          {
+            name: 'slr',
+          },
         ),
       ],
     }).compile();
