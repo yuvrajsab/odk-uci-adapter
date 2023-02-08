@@ -36,7 +36,10 @@ export class SLRProcessor {
         (<unknown>respObj.data.class._text?.split(' '))
       );
       const sessionList: string[] = respObj.data.session._text?.split(' ');
-      const districtList: string[] = respObj.data.district._text?.split(' ');
+      let districtList: string[] = respObj.data.district._text?.split(' ');
+      districtList = districtList?.map((district: string) =>
+        district.split('_').join(' '),
+      );
 
       const query = getStudentForSLC(
         studentId,
@@ -59,7 +62,10 @@ export class SLRProcessor {
           'PROCESSED',
         );
         for (const element of resp.data.data) {
-          const payload = slrTemplate(element.name);
+          const link =
+            this.configService.get<string>('URL_SHORTENER_URL') +
+            `/api/3?student=${element.id}`;
+          const payload = slrTemplate(element.name, link);
           const templateId = this.configService.get<string>('SLR_TEMPLATE_ID');
           const resp = await this.appService.registerSms(
             element.phone,
