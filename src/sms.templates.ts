@@ -1,3 +1,9 @@
+export const SmsAdapterTypeToken = 'SmaAdapterTypeToken';
+export enum SmsAdapterType {
+  UCI = 'UCI',
+  CDAC = 'CDAC',
+}
+
 export const holidayTemplate = (
   name: string,
   start_date: string,

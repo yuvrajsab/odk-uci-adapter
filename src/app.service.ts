@@ -1,8 +1,10 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, lastValueFrom, map } from 'rxjs';
 import { PrismaService } from './prisma.service';
+import { SmsAdapterTypeToken } from './sms.templates';
+import { SmsAdapterInterface } from './sms-adapter/sms-adapter.interface';
 
 @Injectable()
 export class AppService {
@@ -14,6 +16,8 @@ export class AppService {
     private prisma: PrismaService,
     private readonly httpService: HttpService,
     private configService: ConfigService,
+    @Inject(SmsAdapterTypeToken)
+    private readonly smsService: SmsAdapterInterface,
   ) {
     this.adapterId = this.configService.get<string>('UCI_ADAPTER_ID');
     this.UCI_500_ALLOWED =
@@ -51,54 +55,7 @@ export class AppService {
     templateId: string,
     payload: string,
   ): Promise<any> {
-    this.logger.debug(
-      `Processing registerSms() callback: ${JSON.stringify([
-        phone,
-        templateId,
-        payload,
-      ])}`,
-    );
-    const data = {
-      adapterId: this.adapterId,
-      to: {
-        userID: phone,
-        deviceType: 'PHONE',
-        meta: {
-          templateId: templateId,
-        },
-      },
-      payload: {
-        text: payload,
-      },
-    };
-    return await lastValueFrom(
-      this.httpService
-        .post(`${this.configService.get<string>('UCI_URL')}/message/send`, data)
-        .pipe(
-          map((response: any) => {
-            this.logger.debug(
-              `Processed registerSms() SUCCESS: ${JSON.stringify(
-                response.data,
-              )}`,
-            );
-            return response.data;
-          }),
-          catchError((e) => {
-            this.logger.error(
-              `Processing registerSms() FAILURE: ${JSON.stringify(
-                e.response.data,
-              )}`,
-            );
-            if (this.UCI_500_ALLOWED && e.response.status == 500) {
-              // simply just resolve the promise as success even in case of 500s
-              return new Promise((resolve) => {
-                resolve(e.response.data);
-              });
-            }
-            throw new HttpException(e.response.error, e.response.status); // or else throw exception
-          }),
-        ),
-    );
+    return this.smsService.sendSms(phone, templateId, payload);
   }
 
   async updateSubmissionStatus(id, status, remarks = ''): Promise<any> {
@@ -127,6 +84,7 @@ export class AppService {
     this.logger.debug(
       `Processing insertSmsTrackEntry() callback: ${JSON.stringify(data)}`,
     );
+    data.status = data.status || 'UNKNOWN'; // marking the status as unknown in case nothing received
     return this.prisma.sms_track.create({
       data: data,
     });
