@@ -29,7 +29,6 @@ export const getStudentForSLC = (
         is_enabled: {_eq: true}
         %grade_number_query
         school: {
-          udise: {_gt: 999999999, _lte: 2147483647}
           is_active: {_eq: true}
           %session_query
           location: {
