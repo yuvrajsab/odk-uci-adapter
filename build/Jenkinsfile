@@ -17,11 +17,11 @@ node() {
 
     stage('docker-build') {
         sh '''
-        docker build -t $docker_server/$docker_repo:$commit_id app/
+        docker build -t $docker_server/$docker_repo:$commit_id
         '''
         if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master') {
             sh '''
-            docker build -t $docker_server/$docker_repo:latest app/
+            docker build -t $docker_server/$docker_repo:latest
             '''
         }
     }
