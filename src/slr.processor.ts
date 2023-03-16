@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { slrTemplate } from './sms.templates';
 import { getStudentForSLC } from './queries';
 import { Logger } from '@nestjs/common';
+import { isValidNumberForRegion } from 'libphonenumber-js';
 
 @Processor('slr')
 export class SLRProcessor {
@@ -62,6 +63,10 @@ export class SLRProcessor {
           'PROCESSED',
         );
         for (const element of resp.data.data) {
+          if (!this.isPhoneNumberValid(element.phone)) {
+            continue;
+          }
+
           const link =
             this.configService.get<string>('URL_SHORTENER_URL') +
             `/api/3?student=${element.id}`;
@@ -94,5 +99,9 @@ export class SLRProcessor {
     }
 
     return 'OK';
+  }
+
+  isPhoneNumberValid(phoneNumber: number): boolean {
+    return isValidNumberForRegion(phoneNumber.toString(), 'IN');
   }
 }
