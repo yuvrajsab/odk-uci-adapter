@@ -36,6 +36,7 @@ export const getStudentForSLC = (
           }
         }
       }
+      distinct_on: [phone]
     ) {
       id
       name
