@@ -69,7 +69,7 @@ export class SLRProcessor {
 
           const link =
             this.configService.get<string>('URL_SHORTENER_URL') +
-            `/api/3?student=${element.id}`;
+            `/slr?student=${element.id}`;
           const payload = slrTemplate(element.name, link);
           const templateId = this.configService.get<string>('SLR_TEMPLATE_ID');
           const resp = await this.appService.registerSms(
